@@ -54,11 +54,22 @@
         .download {
             position: absolute;
             left: 50%;
-            bottom: 100rem;
+            /* bottom: 100rem; */
+            display: none;
             transform: translateX(-50%);
             width: 0.4rem;
             height: 0.4rem;
             z-index: 998;
+        }
+        
+        .imgBox span {
+            color: rgb(224, 222, 222);
+            position: absolute;
+            left: 50%;
+            /* bottom: 100rem; */
+            display: none;
+            font-size: 0.28rem;
+            transform: translateX(-50%);
         }
     </style>
 </head>
@@ -71,7 +82,8 @@
         你的浏览器不支持canvas,请升级你的浏览器
         </canvas>
         <div class="imgBox" id="imgBox">
-            <img class="download" id="download" src="./imgs/download.png" alt="点击下载">
+            <!-- <img class="download" id="download" src="./imgs/download.png" alt="点击下载"> -->
+            <span id="download">保存方法：长按图片~</span>
         </div>
     </div>
 
@@ -273,9 +285,13 @@
             await hechen();
             var mycanvas = document.getElementById("main");
             let image = new Image();
-            image.src = mycanvas.toDataURL("image/jpg");
+            /* 
+             *Tips: 此处有个坑, 想导出jpg格式的图片必须用image/jpeg，不能使用image/jpg；
+             */
+            image.src = mycanvas.toDataURL("image/jpeg", 0.95);
             // console.log(image)
             return image;
+
         }
         //插入真正的img
         async function appendImg() {
@@ -289,20 +305,20 @@
             img.setAttribute("id", "realImg");
             $('#imgBox').prepend(img);
             console.log("渲染完成");
-
+            $("#download").show();
             $("#download").css("bottom", '0.4rem'); //定位
             $("#download").animate({
-                bottom: '-=1.1rem'
-            }, "easing");
-            $("#download").animate({
-                bottom: '+=0.4rem'
-            }, "easing");
-            $("#download").animate({
-                bottom: '-=0.2rem'
-            }, "easing");
-            $("#download").click(function() {
-                $("#download").attr("src", "./imgs/download2.png")
-            });
+                bottom: '-=0.7rem'
+            }, 1000);
+            // $("#download").animate({
+            //     bottom: '+=0.4rem'
+            // }, "easing");
+            // $("#download").animate({
+            //     bottom: '-=0.2rem'
+            // }, "easing");
+            // $("#download").click(function() {
+            //     $("#download").attr("src", "./imgs/download2.png")
+            // });
 
         }
 
