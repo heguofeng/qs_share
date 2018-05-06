@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>网页模板</title>
+    <link rel="stylesheet" href="./css/reset.css">
+    <script src="./js/jquery.min.js"></script>
+    <style>
+        /* .cover {
+            background-color: #000;
+            opacity: 0.5;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 99;
+        } */
+        
+        body {
+            background-color: #000;
+            /* opacity: 0.5; */
+        }
+        
+        .container {
+            z-index: 999;
+            background: #fff;
+            font-size: 0.14rem;
+            width: 3.45rem;
+            height: auto;
+            margin: 0.5rem auto 0;
+            border-radius: 0.05rem;
+            box-sizing: border-box;
+            overflow: hidden;
+            /* position: relative; */
+        }
+        
+        .bg {
+            box-sizing: border-box;
+            overflow: hidden;
+            width: 100%;
+            height: 2.2rem;
+            background-image: url("./imgs/bg.png");
+            background-color: #000;
+            background-position: left bottom;
+            background-size: 100%;
+            background-repeat: no-repeat;
+            color: #fff;
+        }
+        
+        .info {
+            margin-left: 0.25rem;
+            margin-top: 0.3rem;
+        }
+        
+        .avatar {
+            width: 0.65rem;
+            height: 0.65rem;
+            display: block;
+            border-radius: 50%;
+            border: 0.03rem solid #fff;
+        }
+        
+        .name {
+            margin-top: 0.16rem;
+            margin-bottom: 0.3rem;
+            /* font-size: 0.15rem; */
+            line-height: 1;
+        }
+        
+        .cut {
+            width: 0.01rem;
+            background: #ededed;
+            box-sizing: border-box;
+            height: 0.5rem;
+            margin-bottom: 0.25rem;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
+        
+        .num {
+            /* font-size: 0.17rem; */
+            line-height: 1;
+        }
+        
+        .stepNum {
+            font-size: 0.35rem;
+        }
+        
+        .content {
+            width: 100%;
+            padding-top: 0.4rem;
+        }
+        
+        .rank-box {
+            width: 100%;
+            height: 0.7rem;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            margin-bottom: 0.25rem;
+        }
+        
+        .left,
+        .right {
+            text-align: center;
+            width: 50%;
+            height: 0.7rem;
+            box-sizing: border-box;
+            float: left;
+            color: #757575;
+            font-size: 0.15rem;
+        }
+        
+        .rank {
+            font-size: 0.32rem;
+            color: #454545;
+            line-height: 1.6;
+        }
+        
+        .top {
+            text-align: center;
+            height: 0.16rem;
+            line-height: 0.16rem;
+            font-size: 0.16rem;
+            color: #757575;
+            margin-bottom: 0.15rem;
+        }
+        
+        .top img {
+            width: 0.16rem;
+            height: 0.16rem;
+            display: inline-block;
+            margin-right: 0.03rem;
+        }
+        
+        .today {
+            text-align: center;
+            height: 0.18rem;
+            line-height: 0.17rem;
+            color: #757575;
+            font-size: 0.18rem;
+            margin-bottom: 0.24rem;
+        }
+        
+        .qs {
+            text-align: center;
+            color: #686868;
+            font-size: 0.12rem;
+            margin-bottom: 0.22rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cover"></div>
+    <div class="container">
+        <div class="bg">
+            <div class="info">
+                <img class="avatar" src="./imgs//300.jpg" alt="头像">
+                <p class="name">小王同学啊</p>
+                <div class="cut"></div>
+                <div class="num"><span class="stepNum" id="stepNum">4058</span> 步</div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="rank-box">
+                <div class="cut"></div>
+                <div class="left">
+                    <p>团队内排名</p>
+                    <p>第 <span class="rank">9</span> 名</p>
+                </div>
+                <div class="right">
+                    <p>总排名</p>
+                    <p>第 <span class="rank">12</span> 名</p>
+                </div>
+            </div>
+            <p class="top">
+                <img src="./imgs/crown.png" alt="皇冠">
+                <span class="top-name">黄焕斌</span>
+            </p>
+            <p class="today">夺得今日排行榜冠军</p>
+            <p class="qs">浙江省乔司监狱工会</p>
+        </div>
+    </div>
+</body>
+<script>
+    //设置1rem为100px
+    initpage(); //根据设备变更字体大小
+    window.onresize = function() {
+        initpage();
+    }
+
+    function initpage() {
+        var view_width = document.getElementsByTagName('html')[0].getBoundingClientRect().width;
+        var _html = document.getElementsByTagName('html')[0];
+        _html.style.fontSize = (view_width / 375) * 100 + 'px';
+    }
+</script>
+
+</html>

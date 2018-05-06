@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" href="./css/reset.css">
+    <script src="./js/jquery.min.js"></script>
+    <script src="./plugin/layer/layer.js"></script>
+    <style>
+        /* body {
+            background-color: #000;
+        } */
+        
+        .container {
+            zoom: 0.5;
+        }
+        
+        #main {
+            display: block;
+            margin: 100px auto;
+            border-radius: 20px;
+            border: 2px solid #d3d3d3;
+            display: none;
+        }
+        
+        .realImg {
+            position: relative;
+            border-radius: 10px;
+            z-index: 999;
+        }
+        
+        #imgBox {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+        }
+        
+        .cover {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #000;
+            opacity: 0.7;
+            z-index: 1;
+        }
+        
+        .download {
+            position: absolute;
+            left: 50%;
+            bottom: 100rem;
+            transform: translateX(-50%);
+            width: 0.4rem;
+            height: 0.4rem;
+            z-index: 998;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cover"></div>
+    <!--画布-->
+    <div class="container" id="container">
+        <canvas id="main" height="466" width="340">
+        你的浏览器不支持canvas,请升级你的浏览器
+        </canvas>
+        <div class="imgBox" id="imgBox">
+            <img class="download" id="download" src="./imgs/download.png" alt="点击下载">
+        </div>
+    </div>
+
+
+    <script>
+        let avatarImgSrc = "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJ1Vt2NPhMic6h8vRLYOFApH0mAMoWw7mnOyZPgmfK3U9todzWibGywWnvf2ouYJphrMCcDElET27SA/0"
+        let bgImgSrc = "./imgs/bg.png";
+        let crownImgSrc = "./imgs/crown.png";
+        let name = "小王同学";
+        let stepNum = "4059";
+        let teamRank = 12;
+        let totalRank = 1;
+
+        let ctxWidth; //canvas的宽度
+        let ctxHeight; //canvas高度
+        let fontSize; //跟字体大小
+        let avatarWidth; //头像宽高
+        let avatarHeight;
+        //左上角的坐标点
+        let x = 20;
+        let y = 30;
+
+        //设置1rem为100px
+        initpage(); //根据设备变更字体大小
+        $(window).resize(function() {
+            // console.log("现在是resize")
+            initpage();
+            ctxWidth = $(window).width() - 0.3 * fontSize;
+            ctxHeight = ctxWidth * 466 / 345;
+            $("#main").attr("width", 2 * ctxWidth);
+            $("#main").attr("height", 2 * ctxHeight);
+            appendImg();
+        });
+        //loading带文字 
+        layer.open({
+            index: 1,
+            type: 2,
+            content: '生成中',
+            shadeClose: false,
+        });
+        //预加载将图片绘制到画布
+        $(function() {
+            // console.log("现在是onload")
+            ctxWidth = $(window).width() - 0.3 * fontSize;
+            ctxHeight = ctxWidth * 466 / 345;
+            $("#main").attr("width", 2 * ctxWidth);
+            $("#main").attr("height", 2 * ctxHeight);
+
+            $.getJSON("https://www.easy-mock.com/mock/5ae42a932bfb1a7e1d60f66a/qs/share", async function(data) {
+                // console.log(data.data)
+                let res = data.data;
+                avatarImgSrc = res.avatarImgSrc;
+                bgImgSrc = res.bgImgSrc;
+                crownImgSrc = res.crownImgSrc;
+                name = res.name;
+                stepNum = res.stepNum;
+                teamRank = res.teamRank;
+                totalRank = res.totalRank;
+                await appendImg();
+                console.log(ctxWidth);
+                layer.closeAll();
+            });
+
+        });
+
+        async function hechen() {
+            //获取画布对象
+            return new Promise((resolve) => {
+                var mainCtx = getCanvasContext('main');
+                mainCtx.scale(2, 2); //放大一倍，以免模糊
+                //清除指定的矩形区域，然后这块区域会变的完全透明。
+                mainCtx.clearRect(0, 0, 2 * ctxWidth, 2 * ctxWidth * 466 / 345);
+                mainCtx.fillStyle = "#fff";
+                mainCtx.fillRect(0, 0, 2 * ctxWidth, 2 * ctxWidth * 465 / 345);
+                //获取图片的实际路径
+                // 创建一个img元素
+                var bgImg = new Image();
+                var crownImg = new Image()
+                var avatarImg = new Image();
+                bgImg.crossOrigin = "anonymous"; //设置跨域资源允许权限
+                avatarImg.crossOrigin = "anonymous"; //设置跨域资源允许权限
+                crownImg.crossOrigin = "anonymous"; //设置跨域资源允许权限
+                bgImg.src = bgImgSrc;
+                //合成
+                bgImg.onload = function() {
+                    mainCtx.drawImage(bgImg, 0, 0, ctxWidth, (ctxWidth * 220) / 345); //按屏幕比例缩放
+                    avatarImg.src = avatarImgSrc;
+                    avatarWidth = 0.65 * fontSize;
+                    avatarHeight = 0.65 * fontSize;
+                    let circle, circle_big; //圆
+                    //用于裁剪
+                    circle = {
+                        x: x + avatarWidth / 2,
+                        y: y + avatarHeight / 2, //圆坐标
+                        r: avatarWidth / 2
+                    };
+                    //大圆用于画边框
+                    circle_big = {
+                        x: x + avatarWidth / 2,
+                        y: y + avatarHeight / 2, //圆坐标
+                        r: avatarWidth / 2 + 2.5 //2.5是白边框宽度
+                    };
+                    mainCtx.save(); //保存当前的状态
+                    mainCtx.beginPath();
+                    mainCtx.arc(circle_big.x, circle_big.y, circle_big.r, 0, Math.PI * 2, false);
+                    mainCtx.fillStyle = "#ffffff";
+                    mainCtx.fill();
+                    mainCtx.save();
+                    mainCtx.beginPath();
+                    mainCtx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2, false);
+                    mainCtx.clip(); //裁剪
+
+                }
+                avatarImg.onload = function() {
+                    //先把图片绘制在这里
+                    mainCtx.drawImage(avatarImg, x, y, avatarWidth, avatarHeight);
+                    mainCtx.restore();
+
+                    //用户姓名
+                    mainCtx.font = `normal ${0.14*fontSize}px/1 -apple-system,Helvetica Neue,Arial,PingFang SC,Microsoft YaHei`;
+                    //设置用户文本填充颜色
+                    mainCtx.fillStyle = "#ffffff";
+                    mainCtx.textAlign = "left";
+                    mainCtx.textBaseline = "top";
+                    mainCtx.save();
+                    //绘制文字
+                    mainCtx.fillText(name, (0.25 * fontSize), (1.11 * fontSize));
+                    //步数  设置文本的大小字体属性
+                    mainCtx.font = `normal ${0.35*fontSize}px/1 -apple-system,Helvetica Neue,Arial,PingFang SC,Microsoft YaHei`;
+                    mainCtx.textBaseline = "alphabetic";
+                    mainCtx.fillText(stepNum, x, 1.9 * fontSize);
+                    let stepWidth = mainCtx.measureText(stepNum).width; //步数的宽度
+                    //写“步
+                    mainCtx.font = `normal ${0.14*fontSize}px/1.5 -apple-system,Helvetica Neue,Arial,PingFang SC,Microsoft YaHei`;
+                    mainCtx.textBaseline = "alphabetic";
+                    mainCtx.fillText("步", (x + stepWidth + 0.05 * fontSize), 1.9 * fontSize)
+
+                    mainCtx.font = `normal ${0.15*fontSize}px/1 -apple-system,Helvetica Neue,Arial,PingFang SC,Microsoft YaHei`;
+                    mainCtx.textAlign = "center";
+                    mainCtx.textBaseline = "top";
+                    mainCtx.fillStyle = "#757575";
+                    mainCtx.fillText("团队内排名", 0.25 * ctxWidth, 2.6 * fontSize);
+                    mainCtx.save();
+                    mainCtx.fillText("总排名", 0.75 * ctxWidth, 2.6 * fontSize);
+                    mainCtx.font = `normal ${0.32*fontSize}px/1 -apple-system,Helvetica Neue,Arial,PingFang SC,Microsoft YaHei`;
+                    mainCtx.textAlign = "center";
+                    mainCtx.textBaseline = "alphabetic";
+                    mainCtx.fillStyle = "#454545";
+                    mainCtx.fillText(teamRank, 0.25 * ctxWidth, 3.2 * fontSize);
+                    mainCtx.fillText(totalRank, 0.75 * ctxWidth, 3.2 * fontSize);
+                    let teamWidth = mainCtx.measureText(teamRank).width;
+                    let totalWidth = mainCtx.measureText(totalRank).width;
+                    mainCtx.restore();
+                    mainCtx.textBaseline = "alphabetic";
+                    mainCtx.textAlign = "end";
+                    mainCtx.fillText("第", 0.25 * ctxWidth - teamWidth / 2 - 0.01 * fontSize, 3.2 * fontSize);
+                    mainCtx.fillText("第", 0.75 * ctxWidth - totalWidth / 2 - 0.01 * fontSize, 3.2 * fontSize);
+                    mainCtx.textAlign = "start";
+                    mainCtx.fillText("名", 0.25 * ctxWidth + teamWidth / 2 + 0.01 * fontSize, 3.2 * fontSize);
+                    mainCtx.fillText("名", 0.75 * ctxWidth + totalWidth / 2 + 0.01 * fontSize, 3.2 * fontSize);
+                    //中间的小细线
+                    mainCtx.beginPath();
+                    mainCtx.moveTo(0.5 * ctxWidth, 2.65 * fontSize);
+                    mainCtx.lineTo(0.5 * ctxWidth, 3.2 * fontSize);
+                    mainCtx.lineWidth = 1.0;
+                    mainCtx.strokeStyle = "#ededed";
+                    mainCtx.stroke();
+                    mainCtx.font = `normal ${0.16*fontSize}px/1 -apple-system,Helvetica Neue,Arial,PingFang SC,Microsoft YaHei`;
+                    mainCtx.textAlign = "center";
+                    mainCtx.fillStyle = "#757575";
+                    mainCtx.textBaseline = "top";
+                    mainCtx.fillText("王治郅", 0.5 * ctxWidth, 3.55 * fontSize);
+                    mainCtx.save();
+                    let topNameWidth = mainCtx.measureText("王治郅").width;
+                    //皇冠
+                    crownImg.src = crownImgSrc;
+                    crownImg.onload = function() {
+                        mainCtx.drawImage(crownImg, 0.5 * ctxWidth - topNameWidth / 2 - 0.2 * fontSize, 3.55 * fontSize, 0.16 * fontSize, 0.16 * fontSize)
+                        resolve();
+                    };
+                    mainCtx.font = `normal ${0.18*fontSize}px/1 -apple-system,Helvetica Neue,Arial,PingFang SC,Microsoft YaHei`;
+                    mainCtx.fillText("夺得今日排行榜冠军", 0.5 * ctxWidth, 3.86 * fontSize);
+
+                    mainCtx.font = `normal ${0.11*fontSize}px/1 -apple-system,Helvetica Neue,Arial,PingFang SC,Microsoft YaHei`;
+                    mainCtx.fillStyle = "#9c9595";
+                    mainCtx.fillText("浙江省乔司监狱工会", 0.5 * ctxWidth, 4.32 * fontSize);
+                    console.log("canvas已完成");
+                    // resolve();
+                };
+
+            });
+        }
+        //通过id获取canvas对象
+        function getCanvasContext(id) {
+            return document.getElementById(id).getContext("2d");
+        }
+        //将画布生成图片
+        async function saveImageInfo() {
+            await hechen();
+            var mycanvas = document.getElementById("main");
+            let image = new Image();
+            image.src = mycanvas.toDataURL("image/jpg");
+            // console.log(image)
+            return image;
+        }
+        //插入真正的img
+        async function appendImg() {
+            try {
+                $('#imgBox #realImg').remove();
+            } catch (error) {
+                console.log("没有图片");
+            }
+            let img = await saveImageInfo();
+            img.setAttribute("class", "realImg");
+            img.setAttribute("id", "realImg");
+            $('#imgBox').prepend(img);
+            console.log("渲染完成");
+
+            $("#download").css("bottom", '0.4rem'); //定位
+            $("#download").animate({
+                bottom: '-=1.1rem'
+            }, "easing");
+            $("#download").animate({
+                bottom: '+=0.4rem'
+            }, "easing");
+            $("#download").animate({
+                bottom: '-=0.2rem'
+            }, "easing");
+            $("#download").click(function() {
+                $("#download").attr("src", "./imgs/download2.png")
+            });
+
+        }
+
+        function initpage() {
+            var view_width = document.getElementsByTagName('html')[0].getBoundingClientRect().width;
+            var _html = document.getElementsByTagName('html')[0];
+            _html.style.fontSize = (view_width / 375) * 100 + 'px';
+            fontSize = (view_width / 375) * 100;
+        }
+    </script>
+
+</body>
+
+</html>
